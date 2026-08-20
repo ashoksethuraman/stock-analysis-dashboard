@@ -1,0 +1,34 @@
+[
+  {
+    "symbol": "ITC",
+    "quantity": 150,
+    "averageCost": 410,
+    "conviction": "High",
+    "horizon": "Long Term",
+    "rationale": "Dividend yield, pricing power, and diversified FMCG cash flows support long duration compounding."
+  },
+  {
+    "symbol": "TATAMOTORS",
+    "quantity": 60,
+    "averageCost": 860,
+    "conviction": "Medium",
+    "horizon": "Medium Term",
+    "rationale": "JLR margin recovery and EV mix improvement could expand operating leverage over the next few quarters."
+  },
+  {
+    "symbol": "KPITTECH",
+    "quantity": 40,
+    "averageCost": 1150,
+    "conviction": "High",
+    "horizon": "Long Term",
+    "rationale": "Structural demand for automotive software and electrification engineering supports durable growth."
+  },
+  {
+    "symbol": "DRREDDY",
+    "quantity": 12,
+    "averageCost": 6100,
+    "conviction": "Watchlist",
+    "horizon": "Review",
+    "rationale": "Execution remains healthy, but current valuation limits near-term upside versus the biosimilar pipeline payoff."
+  }
+]
