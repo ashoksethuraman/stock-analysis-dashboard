@@ -1,0 +1,13 @@
+{
+  "WEBSITE_NODE_DEFAULT_VERSION": "~22",
+  "SCM_DO_BUILD_DURING_DEPLOYMENT": "false",
+  "WEBSITES_PORT": "3000",
+  "NEXT_PUBLIC_SITE_URL": "https://sample-stock-dashboard-prod.azurewebsites.net",
+  "INTERNAL_API_BASE_URL": "https://sample-stock-dashboard-prod.azurewebsites.net",
+  "AZURE_WEBAPP_NAME": "sample-stock-dashboard-prod",
+  "AZURE_CONTAINER_APP_NAME": "sample-stock-dashboard-containerapp",
+  "AZURE_RESOURCE_GROUP": "rg-sample-stock-dashboard-prod",
+  "AZURE_CONTAINER_REGISTRY_LOGIN_SERVER": "sampledashboardacr.azurecr.io",
+  "AZURE_CONTAINER_REGISTRY_USERNAME": "sampledashboardacr",
+  "AZURE_CONTAINER_REGISTRY_PASSWORD": "replace-with-real-acr-password"
+}
