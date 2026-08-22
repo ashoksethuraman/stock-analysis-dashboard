@@ -62,6 +62,34 @@ jobs:
       - name: Test with coverage
         run: npm run test:coverage
 
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Verify Next.js standalone build
+        run: |
+          echo "=========================================="
+          echo "Next.js Build Verification"
+          echo "=========================================="
+
+          echo ""
+          echo "Root .next:"
+          ls -la .next
+
+          echo ""
+          echo "Standalone:"
+          ls -la .next/standalone
+
+          echo ""
+          echo "Standalone .next:"
+          ls -la .next/standalone/.next
+
+          echo ""
+          echo "Standalone files:"
+          find .next/standalone -maxdepth 3 -type f | head -100
+
+          echo ""
+          echo "=========================================="
+
       - name: Prepare deployment package
         run: |
           echo "Preparing deployment package..."
@@ -69,20 +97,34 @@ jobs:
           rm -rf deploy
           mkdir -p deploy
 
-          # Copy standalone server and dependencies
-          cp -r .next/standalone/* deploy/
+          # Copy complete standalone output
+          cp -r .next/standalone/. deploy/
 
-          # Copy Next.js static assets
+          # Copy static assets required by Next.js
           mkdir -p deploy/.next/static
-          cp -r .next/static/* deploy/.next/static/
+          cp -r .next/static/. deploy/.next/static
 
           # Copy public assets
           if [ -d public ]; then
             cp -r public deploy/public
           fi
 
-          echo "Deployment package:"
-          find deploy -maxdepth 3 -type f | head -100
+          echo "=========================================="
+          echo "Deployment Package"
+          echo "=========================================="
+
+          echo "Root:"
+          ls -la deploy
+
+          echo ""
+          echo ".next:"
+          find deploy/.next -maxdepth 3 -type f | head -100
+
+          echo ""
+          echo "server.js:"
+          ls -lh deploy/server.js
+
+          echo "=========================================="
 
       - name: Azure Login
         uses: azure/login@v2
