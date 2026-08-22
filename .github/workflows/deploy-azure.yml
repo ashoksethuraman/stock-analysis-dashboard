@@ -8,11 +8,13 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
     environment:
       name: production
       url: ${{ steps.deploy.outputs.webapp-url }}
@@ -26,6 +28,24 @@ jobs:
         with:
           node-version: 24
           cache: npm
+
+      - name: Verify deployment configuration
+        run: |
+          echo "=========================================="
+          echo "Deployment Configuration"
+          echo "=========================================="
+          echo "App Name       : stock-analyse"
+          echo "Resource Group : rg-stock-analysis"
+          echo "Node Version   : 24"
+          echo "Branch         : ${GITHUB_REF_NAME}"
+          echo "Commit         : ${GITHUB_SHA}"
+          echo "Repository     : ${GITHUB_REPOSITORY}"
+          echo "Environment    : production"
+          echo "=========================================="
+          echo "AZURE_CLIENT_ID is configured: ${{ secrets.AZURE_CLIENT_ID != '' }}"
+          echo "AZURE_TENANT_ID is configured: ${{ secrets.AZURE_TENANT_ID != '' }}"
+          echo "AZURE_SUBSCRIPTION_ID is configured: ${{ secrets.AZURE_SUBSCRIPTION_ID != '' }}"
+          echo "=========================================="
 
       - name: Install dependencies
         run: npm ci
@@ -47,15 +67,52 @@ jobs:
 
       - name: Prepare deployment package
         run: |
+          echo "Preparing deployment package..."
+
           mkdir -p deploy/.next
+
           cp -r .next/standalone/* deploy/
           cp -r .next/static deploy/.next/static
           cp -r public deploy/public
+
+          echo "Deployment package prepared:"
+          du -sh deploy
+          echo "Package contents:"
+          ls -la deploy
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure Login
+        run: |
+          echo "=========================================="
+          echo "Azure Login Successful"
+          echo "=========================================="
+
+          az account show \
+            --query "{Subscription:name, SubscriptionId:id, TenantId:tenantId}" \
+            --output table
+
+          echo "=========================================="
 
       - name: Deploy to Azure Web App
         id: deploy
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          app-name: stock-analyse
           package: deploy
+
+      - name: Deployment Summary
+        run: |
+          echo "=========================================="
+          echo "Azure App Service Deployment Completed"
+          echo "=========================================="
+          echo "App Name : stock-analyse"
+          echo "URL      : ${{ steps.deploy.outputs.webapp-url }}"
+          echo "Branch   : ${GITHUB_REF_NAME}"
+          echo "Commit   : ${GITHUB_SHA}"
+          echo "=========================================="

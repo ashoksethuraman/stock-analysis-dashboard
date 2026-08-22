@@ -1,14 +1,11 @@
-name: Deploy Azure Container App
+name: Deploy Azure Web App Container
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
+  id-token: write
 
 env:
   REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}
@@ -18,6 +15,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.webapp-url }}
 
     steps:
       - name: Checkout
@@ -44,10 +45,12 @@ jobs:
       - name: Test with coverage
         run: npm run test:coverage
 
-      - name: Azure login
+      - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Azure Container Registry login
         uses: docker/login-action@v3
@@ -57,7 +60,6 @@ jobs:
           password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
 
       - name: Build and push image
-        id: image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -65,9 +67,9 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      - name: Deploy to Azure Container Apps
-        uses: azure/container-apps-deploy-action@v1
+      - name: Deploy container to Azure Web App
+        id: deploy
+        uses: azure/webapps-deploy@v3
         with:
-          containerAppName: ${{ secrets.AZURE_CONTAINER_APP_NAME }}
-          resourceGroup: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          app-name: stock-analyse
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
